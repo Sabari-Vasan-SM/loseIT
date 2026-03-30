@@ -30,9 +30,9 @@ class MainShell extends StatelessWidget {
           },
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Home',
+              icon: Icon(Icons.dynamic_feed_outlined),
+              selectedIcon: Icon(Icons.dynamic_feed_rounded),
+              label: 'Feed',
             ),
             NavigationDestination(
               icon: Icon(Icons.add_circle_outline_rounded),

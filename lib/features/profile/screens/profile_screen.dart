@@ -26,6 +26,12 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
+          // Edit profile button
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, size: 22),
+            onPressed: () => context.push('/edit-profile'),
+            tooltip: 'Edit Profile',
+          ),
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -112,8 +118,31 @@ class ProfileScreen extends ConsumerWidget {
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
+                  if (user.contactNumber.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.phone_outlined,
+                          size: 14,
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.4),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          user.contactNumber,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   if (user.bio.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     Text(
                       user.bio,
                       style: GoogleFonts.inter(
@@ -124,6 +153,20 @@ class ProfileScreen extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                   ],
+                  const SizedBox(height: 20),
+
+                  // Edit Profile button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/edit-profile'),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      label: const Text('Edit Profile'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Stats row

@@ -9,6 +9,8 @@ class MockData {
     email: 'alex@example.com',
     avatarUrl: 'https://i.pravatar.cc/300?img=12',
     bio: 'Helping people find their lost belongings 🔍',
+    contactNumber: '+1 (555) 0123',
+    isProfileComplete: true,
   );
 
   static final List<PostModel> posts = [

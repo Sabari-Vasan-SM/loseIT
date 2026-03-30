@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lose_it/features/auth/models/user_model.dart';
-import 'package:lose_it/core/constants/mock_data.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();
@@ -16,6 +15,8 @@ class AuthState {
     this.user,
     this.isLoading = false,
   });
+
+  bool get isProfileComplete => user?.isProfileComplete ?? false;
 
   AuthState copyWith({
     bool? isAuthenticated,
@@ -35,11 +36,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true);
-    // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 1200));
     state = AuthState(
       isAuthenticated: true,
-      user: MockData.currentUser,
+      user: UserModel(
+        id: 'user_1',
+        name: '',
+        email: email,
+        avatarUrl: 'https://i.pravatar.cc/300?img=12',
+        isProfileComplete: false,
+      ),
       isLoading: false,
     );
   }
@@ -54,9 +60,48 @@ class AuthNotifier extends StateNotifier<AuthState> {
         name: name,
         email: email,
         avatarUrl: 'https://i.pravatar.cc/300?img=12',
-        bio: 'New to LoseIT!',
+        isProfileComplete: false,
       ),
       isLoading: false,
+    );
+  }
+
+  void completeProfile({
+    required String name,
+    required String email,
+    required String contactNumber,
+    required String bio,
+    required String avatarUrl,
+  }) {
+    if (state.user == null) return;
+    state = state.copyWith(
+      user: state.user!.copyWith(
+        name: name,
+        email: email,
+        contactNumber: contactNumber,
+        bio: bio,
+        avatarUrl: avatarUrl,
+        isProfileComplete: true,
+      ),
+    );
+  }
+
+  void updateProfile({
+    String? name,
+    String? email,
+    String? contactNumber,
+    String? bio,
+    String? avatarUrl,
+  }) {
+    if (state.user == null) return;
+    state = state.copyWith(
+      user: state.user!.copyWith(
+        name: name,
+        email: email,
+        contactNumber: contactNumber,
+        bio: bio,
+        avatarUrl: avatarUrl,
+      ),
     );
   }
 

@@ -18,6 +18,8 @@ class FeedScreen extends ConsumerStatefulWidget {
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   bool _isLoading = true;
   ItemStatus? _selectedFilter;
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -29,14 +31,32 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final posts = ref.watch(postsProvider);
     final theme = Theme.of(context);
     final themeNotifier = ref.read(themeModeProvider.notifier);
 
-    final filteredPosts = _selectedFilter == null
+    // Apply filters
+    var filteredPosts = _selectedFilter == null
         ? posts
         : posts.where((p) => p.status == _selectedFilter).toList();
+
+    // Apply search
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      filteredPosts = filteredPosts
+          .where((p) =>
+              p.title.toLowerCase().contains(query) ||
+              p.location.toLowerCase().contains(query) ||
+              p.description.toLowerCase().contains(query))
+          .toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -65,6 +85,64 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           ? const ShimmerLoading()
           : Column(
               children: [
+                // Search bar
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) =>
+                        setState(() => _searchQuery = value),
+                    decoration: InputDecoration(
+                      hintText: 'Search items, locations...',
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.close_rounded,
+                                size: 20,
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.4),
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.04),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.15),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.15),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 1.5,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ),
+
                 // Filter chips
                 SizedBox(
                   height: 52,
@@ -113,11 +191,16 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 // Feed
                 Expanded(
                   child: filteredPosts.isEmpty
-                      ? const EmptyState(
-                          icon: Icons.inbox_rounded,
-                          title: 'No items yet',
-                          subtitle:
-                              'Be the first to report a lost or found item',
+                      ? EmptyState(
+                          icon: _searchQuery.isNotEmpty
+                              ? Icons.search_off_rounded
+                              : Icons.inbox_rounded,
+                          title: _searchQuery.isNotEmpty
+                              ? 'No results found'
+                              : 'No items yet',
+                          subtitle: _searchQuery.isNotEmpty
+                              ? 'Try a different search term'
+                              : 'Be the first to report a lost or found item',
                         )
                       : RefreshIndicator(
                           color: theme.colorScheme.primary,
